@@ -5,9 +5,8 @@ variables:
 
   POSTGRES_HOST: postgres
   POSTGRES_USER: user
-  POSTGRES_PASS: password
-  POSTGRES_ENABLED: "true"
-  POSTGRES_DB: $CI_ENVIRONMENT_SLUG
+  POSTGRES_PASSWORD: password
+  POSTGRES_DB: test_db
 
 stages:
   - build
@@ -24,10 +23,9 @@ build:
     - setup_docker
     - build
 
-
 test:
   services:
-    - postgres:10.2
+    - postgres:latest
   stage: test
   image: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
   script:
@@ -40,8 +38,6 @@ test:
 .auto_devops: &auto_devops |
   # Auto DevOps variables and functions
   [[ "$TRACE" ]] && set -x
-  auto_database_url=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${CI_ENVIRONMENT_SLUG}-postgres:5432/${POSTGRES_DB}
-  export DATABASE_URL=${DATABASE_URL-$auto_database_url}
   export CI_APPLICATION_REPOSITORY=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG
   export CI_APPLICATION_TAG=$CI_COMMIT_SHA
 
@@ -69,15 +65,6 @@ test:
       docker push "$CI_APPLICATION_REPOSITORY:$CI_APPLICATION_TAG"
       echo ""
     fi
-  }
-
-  function setup_test_db() {
-    if [ -z ${KUBERNETES_PORT+x} ]; then
-      DB_HOST=postgres
-    else
-      DB_HOST=localhost
-    fi
-    export DATABASE_URL="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:5432/${POSTGRES_DB}"
   }
 
 before_script:
