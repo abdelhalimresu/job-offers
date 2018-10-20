@@ -1,3 +1,6 @@
+# Built-in
+import os
+
 # Pip imports
 from flask import Flask
 from flask_restplus import Api
@@ -19,8 +22,8 @@ def create_app(config):
     return app
 
 
-app = create_app('config.DevelopmentConfig')
+app = create_app(os.environ.get("APP_CONFIGURATION"))
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=True)
