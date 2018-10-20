@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+
+  api:
+    build: .
+    command: python app.py
+    volumes:
+      - .:/src
+    ports:
+      - '5000:5000'
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+
+  postgres:
+    image: 'postgres:10.2'
+    ports:
+      - '5432:5432'
+    env_file:
+      - .env
+    volumes:
+      - './data:/var/lib/postgresql/data/'
