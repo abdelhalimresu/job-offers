@@ -3,11 +3,6 @@ image: alpine:latest
 variables:
   AUTO_DEVOPS_DOMAIN: abdelhalimresu.com
 
-  POSTGRES_HOST: localhost
-  POSTGRES_USER: user
-  POSTGRES_PASSWORD: password
-  POSTGRES_DB: test_db
-
 stages:
   - build
   - test
@@ -26,11 +21,15 @@ build:
 test:
   services:
     - postgres:latest
+  variables:
+    POSTGRES_HOST: localhost
+    POSTGRES_USER: user
+    POSTGRES_PASSWORD: password
+    POSTGRES_DB: test_db
   stage: test
   image: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
   script:
-    - python tests.py || echo "Failed"
-    - sleep 600
+    - python tests.py
 
 
 # ---------------------------------------------------------------------------
