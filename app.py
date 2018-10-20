@@ -23,4 +23,4 @@ def create_app(config):
 
 if __name__ == '__main__':
     app = create_app(os.environ.get("APP_CONFIGURATION"))
-    app.run(host="0.0.0.0", debug=True)
+    app.run(host="0.0.0.0")
