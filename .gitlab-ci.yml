@@ -21,8 +21,8 @@ build:
   variables:
     DOCKER_DRIVER: overlay2
   script:
-    - setup_docker || echo "Failed"
-    - build || echo "Failed"
+    - setup_docker
+    - build
 
 
 test:
@@ -31,8 +31,7 @@ test:
   stage: test
   image: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
   script:
-    - env
-    - sleep 600
+    - python tests.py
 
 
 
