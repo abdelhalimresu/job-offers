@@ -22,11 +22,12 @@ class BaseTestCase(unittest.TestCase):
 
 class ApiTest(BaseTestCase):
 
-    def test_create_offer(self):
+    def test_create_user(self):
         user = User(username="resu", password="resu")
         user.create()
         user = User.query.first()
         self.assertEqual(user.username, "resu")
+        self.assertEqual(user.password, "resu")
 
 
 if __name__ == '__main__':
