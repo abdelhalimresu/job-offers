@@ -3,7 +3,7 @@ image: alpine:latest
 variables:
   AUTO_DEVOPS_DOMAIN: abdelhalimresu.com
 
-  POSTGRES_HOST: postgres
+  POSTGRES_HOST: localhost
   POSTGRES_USER: user
   POSTGRES_PASSWORD: password
   POSTGRES_DB: test_db
