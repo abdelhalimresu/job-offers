@@ -22,12 +22,15 @@ offer_schema = OfferSchema()
 offers_schema = OfferSchema(many=True)
 
 # Models for Swagger documentation
-offer_model = offers.model('Model', {
+offer_model = offers.model('OfferModel', {
     'title': fields.String,
     'description': fields.String,
     'skills_list': fields.List(fields.String),
+    'creation_date': fields.DateTime,
+    'modification_date': fields.DateTime
 })
-user_model = users.model('Model', {
+
+user_model = users.model('UserModel', {
     'username': fields.String,
     'password': fields.String
 })
