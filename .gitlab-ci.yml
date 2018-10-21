@@ -133,7 +133,7 @@ staging:
 
     echo "Checking Tiller..."
     kubectl get pods
-    helm init --service-account tiller
+    helm init --service-account tiller || echo "Tiller not found"
 
     helm upgrade --install \
       --wait \
