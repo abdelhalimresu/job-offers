@@ -1,5 +1,7 @@
 Click==7.0
+Flask-Migrate==2.3.0
 Flask-SQLAlchemy==2.3.2
+Flask-Script==2.0.6
 Flask==1.0.2
 ItsDangerous==1.0.0
 Jinja2==2.10
@@ -9,8 +11,10 @@ Werkzeug==0.14.1
 aniso8601==3.0.2
 flask-restplus==0.12.1
 jsonschema==2.6.0
+marshmallow==3.0.0b18
 psycopg2-binary==2.7.5
 pylint==1.9.3
 python-dotenv==0.9.1
 pytz==2018.5
 six==1.11.0
+uWSGI==2.0.17.1

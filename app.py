@@ -7,11 +7,14 @@ from flask_restplus import Api
 
 # Project imports
 from api.db import db
+from api.resources import offers
 
 
 api = Api(version='1.0', title='Job offers',
     description='A Simple API for job offers'
 )
+
+api.add_namespace(offers, path='/api/v1/users/<int:user_id>/offers')
 
 
 def create_app(config):
