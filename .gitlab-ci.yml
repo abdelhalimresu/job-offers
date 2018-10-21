@@ -107,9 +107,9 @@ staging:
   }
 
   function ensure_namespace() {
-    if [[ "$CI_JOB_NAME" == "Staging" ]]; then
+    if [[ "$CI_JOB_NAME" == "staging" ]]; then
       export KUBE_NAMESPACE=$STAGING_SUBDOMAIN
-    elif [[ "$CI_JOB_NAME" == "Production" ]]; then
+    elif [[ "$CI_JOB_NAME" == "production" ]]; then
       export KUBE_NAMESPACE=$PRODUCTION_SUBDOMAIN
     fi
     kubectl describe namespace "$KUBE_NAMESPACE" || kubectl create namespace "$KUBE_NAMESPACE"
