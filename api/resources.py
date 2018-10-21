@@ -92,3 +92,12 @@ class OfferItem(Resource):
             else:
                 return {"message": "Invalid user id"}, 404
 
+    def delete(self, user_id, id):
+        offer = Offer.query.filter_by(id=id, user_id=user_id).first()
+
+        if offer:
+            offer.delete()
+            return {"message": "offer deleted {}".format(id)}, 200
+
+        else:
+            return {"message": "offer not found {}".format(id)}, 404
