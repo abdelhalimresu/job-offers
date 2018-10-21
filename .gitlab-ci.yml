@@ -131,9 +131,7 @@ staging:
     export PERSISTENT_VOLUME_SIZE=5
     export API_REPLICAS=1
 
-    echo "Checking Tiller..."
-    kubectl get pods
-    helm init --service-account tiller || echo "Tiller not found"
+    helm init --client-only
 
     helm upgrade --install \
       --wait \
