@@ -24,7 +24,7 @@ spec:
           ports:
             - containerPort: {{ .Values.service.internalPort }}
           command: ["/bin/bash", "-c"]
-          args: ["python app.py"]
+          args: ["uwsgi --socket 0.0.0.0:5000 --protocol=http -w wsgi"]
           env:
             - name: FLASK_SECRET_KEY
               valueFrom:

@@ -4,7 +4,8 @@ services:
 
   api:
     build: .
-    command: python app.py
+    command: uwsgi --socket 0.0.0.0:5000 --protocol=http -w wsgi
+    # command: python app.py
     volumes:
       - .:/src
     ports:

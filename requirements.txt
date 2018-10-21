@@ -14,3 +14,4 @@ pylint==1.9.3
 python-dotenv==0.9.1
 pytz==2018.5
 six==1.11.0
+uWSGI==2.0.17.1
