@@ -19,6 +19,12 @@ offers = Namespace('Offers', description='Job offers related operations')
 offer_schema = OfferSchema()
 offers_schema = OfferSchema(many=True)
 
+# Models for Swagger documentation
+offer_model = offers.model('Model', {
+    'title': fields.String,
+    'description': fields.String,
+    'skills_list': fields.List(fields.String),
+})
 
 # Routes definitions
 
@@ -36,6 +42,7 @@ class OfferList(Resource):
         else:
             return {"message": "No offers to show"}, 404
 
+    @offers.expect(offer_model)
     def post(self, user_id):
         json_data = request.get_json()
 
@@ -70,6 +77,7 @@ class OfferItem(Resource):
         else:
             return {"message": "offer not found {}".format(id)}, 404
 
+    @offers.expect(offer_model)
     def put(self, user_id, id):
         json_data = request.get_json()
 
