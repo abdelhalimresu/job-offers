@@ -42,7 +42,7 @@ class Offer(db.Model):
     description = Column(String(512))
     skills_list = Column(ARRAY(String))
     creation_date = Column(DateTime, default=datetime.utcnow)
-    modification_date = Column(DateTime, default=datetime.utcnow)
+    modification_date = Column(DateTime, default=datetime.utcnow, onupdate=datetime.now)
     user_id = Column(Integer, ForeignKey('users.id'))
 
     # Relationships
@@ -58,8 +58,6 @@ class Offer(db.Model):
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
-        # Update modification date
-        self.modification_date = datetime.utcnow
         db.session.commit()
 
     def create(self):
