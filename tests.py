@@ -48,7 +48,7 @@ class JobOfferTest(BaseTestCase):
         self.assertEqual(len(response.json["skills_list"]), 3)
         self.assertIsNotNone(response.json["creation_date"])
         self.assertIsNotNone(response.json["modification_date"])
-
+        
         # Test when offer or user IDs don't exist
         response = self.client.get("/api/v1/users/1/offers/12")
         self.assertEqual(response.status_code, 404)
@@ -80,10 +80,85 @@ class JobOfferTest(BaseTestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_create_offer(self):
-        pass
+        offer_data = {
+            'title': 'Backend Engineer',
+            'skills_list': ['python', 'flask', 'DevOps'],
+            'description': 'Build a RESTful API'
+        }
+        response = self.client.post(
+            "/api/v1/users/{}/offers/".format(self.user.id),
+            json=offer_data
+        )
+        self.assertEqual(response.status_code, 201)
+        offer = Offer.query.filter_by(title='Backend Engineer', user_id=self.user.id).first()
+        self.assertIsNotNone(offer)
+        self.assertEqual(offer.description, "Build a RESTful API")
+        self.assertEqual(offer.skills_list, ['python', 'flask', 'DevOps'])
+
+        # Test with no data
+        response = self.client.post("/api/v1/users/{}/offers/".format(self.user.id))
+        self.assertEqual(response.status_code, 400)
+
+        # Test with non-existent user id
+        response = self.client.post(
+            "/api/v1/users/100/offers/",
+            json=offer_data
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json, {'message': 'Invalid user id'})
+
+        # Test with missing fields
+        offer_data.pop("title", None)
+        response = self.client.post(
+            "/api/v1/users/{}/offers/".format(self.user.id),
+            json=offer_data
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json, {'title': ['Missing data for required field.']})
 
     def test_update_offer(self):
-        pass
+        # Create an offer in the database to retreive
+        offer = Offer(
+            title="Backend Engineer",
+            description="Build a RESTful API",
+            skills_list=["python", "flask", "DevOps"],
+            user_id=self.user.id
+        )
+        offer.create()
+        old_modification_date = offer.modification_date
+        response = self.client.put(
+            "/api/v1/users/{}/offers/{}".format(self.user.id, offer.id),
+            json={
+                "description": "Build a RESTful API with flask"
+            }
+        )
+        self.assertEqual(response.status_code, 200)
+        offer = Offer.query.first()
+        self.assertEqual(offer.description, "Build a RESTful API with flask")
+        self.assertGreater(offer.modification_date, old_modification_date)
+        
+        # Test with no data
+        response = self.client.put("/api/v1/users/{}/offers/{}".format(self.user.id, offer.id))
+        self.assertEqual(response.status_code, 400)
+
+        # Test with non-existent offer id
+        response = self.client.put(
+            "/api/v1/users/{}/offers/12".format(self.user.id),
+            json={
+                "description": "Build a RESTful API with flask"
+            }
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # Test with non-existent user id
+        response = self.client.put(
+            "/api/v1/users/12/offers/{}".format(offer.id),
+            json={
+                "description": "Build a RESTful API with flask"
+            }
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json, {'message': 'Invalid user id'})
 
 
 
