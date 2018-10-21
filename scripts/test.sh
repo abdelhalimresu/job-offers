@@ -2,7 +2,7 @@
 set -e
 
 # Start postgres test instance
-docker-compose -f docker-compose.test.yml up -d
+docker-compose -f postgres.yml up -d
 
 # Wait for postgres to start
 sleep 3

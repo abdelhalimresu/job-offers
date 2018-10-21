@@ -1,0 +1,11 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: api-config
+data:
+  flask_secret_key: {{ .Values.flask.secret }}
+  app_configuration: {{ .Values.flask.appConfiguration }}
+  postgres_db: {{ .Values.postgres.database }}
+  postgres_host: {{ .Values.postgres.hostname }}
+  postgres_pass: {{ .Values.postgres.password }}
+  postgres_user: {{ .Values.postgres.user }}

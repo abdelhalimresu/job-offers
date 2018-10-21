@@ -1,11 +1,17 @@
 image: alpine:latest
 
 variables:
-  AUTO_DEVOPS_DOMAIN: abdelhalimresu.com
+  AUTO_DEVOPS_DOMAIN: apps.abdelhalimresu.com
+  PRODUCTION_SUBDOMAIN: job-offers-api
+  STAGING_SUBDOMAIN: job-offers-api-staging
+
+  KUBERNETES_VERSION: 1.9.7
+  HELM_VERSION: 2.11.0
 
 stages:
   - build
   - test
+  - staging
 
 build:
   stage: build
@@ -30,6 +36,23 @@ test:
   image: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
   script:
     - python tests.py
+
+staging:
+  stage: staging
+  script:
+    - env
+    - install_dependencies
+    - ensure_namespace
+    - create_secret
+    - deploy
+
+  environment:
+    name: staging
+    url: https://$STAGING_SUBDOMAIN.$AUTO_DEVOPS_DOMAIN/
+  only:
+    refs:
+      - branches
+    kubernetes: active
 
 
 # ---------------------------------------------------------------------------
@@ -65,6 +88,63 @@ test:
       echo ""
     fi
   }
+
+  function install_dependencies() {
+    apk add -U openssl curl tar gzip bash ca-certificates git
+    curl -L -o /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
+    curl -L -O https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.28-r0/glibc-2.28-r0.apk
+    apk add glibc-2.28-r0.apk
+    rm glibc-2.28-r0.apk
+
+    curl "https://kubernetes-helm.storage.googleapis.com/helm-v${HELM_VERSION}-linux-amd64.tar.gz" | tar zx
+    mv linux-amd64/helm /usr/bin/
+    mv linux-amd64/tiller /usr/bin/
+    helm version --client
+    tiller -version
+
+    curl -L -o /usr/bin/kubectl "https://storage.googleapis.com/kubernetes-release/release/v${KUBERNETES_VERSION}/bin/linux/amd64/kubectl"
+    chmod +x /usr/bin/kubectl
+    kubectl version --client
+  }
+
+  function ensure_namespace() {
+    if [[ "$CI_JOB_NAME" == "staging" ]]; then
+      export KUBE_NAMESPACE=$STAGING_SUBDOMAIN
+    elif [[ "$CI_JOB_NAME" == "production" ]]; then
+      export KUBE_NAMESPACE=$PRODUCTION_SUBDOMAIN
+    fi
+    kubectl describe namespace "$KUBE_NAMESPACE" || kubectl create namespace "$KUBE_NAMESPACE"
+  }
+
+  function create_secret() {
+    kubectl create secret -n "$KUBE_NAMESPACE" \
+      docker-registry gitlab-registry \
+      --docker-server="$CI_REGISTRY" \
+      --docker-username="$CI_REGISTRY_USER" \
+      --docker-password="$CI_REGISTRY_PASSWORD" \
+      --docker-email="$GITLAB_USER_EMAIL" \
+      -o yaml --dry-run | kubectl replace -n "$KUBE_NAMESPACE" --force -f -
+  }
+
+  function deploy() {
+    export PERSISTENT_VOLUME_SIZE=5
+    export API_REPLICAS=1
+
+    helm init --service-account tiller
+
+    helm upgrade --install \
+      --wait \
+      --values chart/values.yaml \
+      --set releaseOverride="$CI_ENVIRONMENT_SLUG" \
+      --set image.repository="$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG" \
+      --set image.tag="$CI_COMMIT_SHA" \
+      --set replicaCount.api=$API_REPLICAS \
+      --set ingress.hosts[0]="$STAGING_SUBDOMAIN.$AUTO_DEVOPS_DOMAIN" \
+      --namespace=$KUBE_NAMESPACE \
+      joboffers \
+      chart/
+  }
+
 
 before_script:
   - *auto_devops
