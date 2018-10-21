@@ -117,7 +117,7 @@ class JobOfferTest(BaseTestCase):
         self.assertEqual(response.json, {'title': ['Missing data for required field.']})
 
     def test_update_offer(self):
-        # Create an offer in the database to retreive
+        # Create an offer in the database to update
         offer = Offer(
             title="Backend Engineer",
             description="Build a RESTful API",
@@ -160,7 +160,25 @@ class JobOfferTest(BaseTestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json, {'message': 'Invalid user id'})
 
+    def test_delete_offer(self):
+        # Create an offer in the database to delete
+        offer = Offer(
+            title="Backend Engineer",
+            description="Build a RESTful API",
+            skills_list=["python", "flask", "DevOps"],
+            user_id=self.user.id
+        )
+        offer.create()
+        response = self.client.delete("/api/v1/users/{}/offers/{}".format(self.user.id, offer.id))
+        self.assertEqual(response.status_code, 200)
 
+        # Test with wrong user
+        response = self.client.delete("/api/v1/users/12/offers/{}".format(offer.id))
+        self.assertEqual(response.status_code, 404)
+
+        # Test delete again
+        response = self.client.delete("/api/v1/users/{}/offers/{}".format(self.user.id, offer.id))
+        self.assertEqual(response.status_code, 404)
 
 if __name__ == '__main__':
     unittest.main()
