@@ -45,7 +45,7 @@ staging:
     - ensure_namespace
     - create_secret
     - deploy || echo failed
-    - sleep 300
+
   environment:
     name: staging
     url: https://$STAGING_SUBDOMAIN.$AUTO_DEVOPS_DOMAIN/
@@ -131,7 +131,16 @@ staging:
     export PERSISTENT_VOLUME_SIZE=5
     export API_REPLICAS=1
 
-    helm init --client-only
+    sleep 900
+
+    echo "Checking Tiller..."
+    helm init --upgrade
+    kubectl rollout status -n "$TILLER_NAMESPACE" -w "deployment/tiller-deploy"
+    if ! helm version --debug; then
+      echo "Failed to init Tiller."
+      return 1
+    fi
+    echo ""
 
     helm upgrade --install \
       --wait \
