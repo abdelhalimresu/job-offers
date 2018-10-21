@@ -13,4 +13,6 @@ function ctrl_c() {
 trap ctrl_c INT
 
 # Run python dev server
-export $(cat .env | xargs) && python app.py
+export $(cat .env | xargs)
+export POSTGRES_HOST=localhost
+python app.py

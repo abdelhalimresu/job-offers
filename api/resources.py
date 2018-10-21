@@ -27,6 +27,11 @@ offer_model = offers.model('Model', {
     'description': fields.String,
     'skills_list': fields.List(fields.String),
 })
+user_model = users.model('Model', {
+    'username': fields.String,
+    'password': fields.String
+})
+
 
 # Routes definitions
 
@@ -116,6 +121,7 @@ class OfferItem(Resource):
 @users.route("/register")
 class UserRegister(Resource):
 
+    @offers.expect(user_model)
     def post(self):
         json_data = request.get_json()
 
@@ -137,6 +143,7 @@ class UserRegister(Resource):
 @users.route("/login")
 class UserLogin(Resource):
 
+    @offers.expect(user_model)
     def post(self):
         json_data = request.get_json()
 
@@ -145,6 +152,7 @@ class UserLogin(Resource):
 
         try:
             result = user_schema.load(json_data)
+            print(result)
             user = User.query.filter_by(username=result["username"]).first()
             if user and user.check_password(result["password"]):
                 return {"id": user.id, "token": user.generate_token()}, 200
