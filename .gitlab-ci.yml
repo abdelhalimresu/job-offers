@@ -5,7 +5,7 @@ variables:
   PRODUCTION_SUBDOMAIN: job-offers-api
   STAGING_SUBDOMAIN: job-offers-api-staging
 
-  KUBERNETES_VERSION: 1.8.6
+  KUBERNETES_VERSION: 1.9.7
   HELM_VERSION: 2.11.0
 
 stages:
