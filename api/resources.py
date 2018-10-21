@@ -6,7 +6,7 @@ from flask_restplus import marshal, fields, marshal_with, reqparse
 # Project imports
 from api.db import db
 from api.models import Offer, User
-from api.schemas import OfferSchema
+from api.schemas import OfferSchema, UserSchema
 
 # Exceptions
 from marshmallow import ValidationError
@@ -14,8 +14,10 @@ from sqlalchemy.exc import IntegrityError
 
 # Create API Namespace for Offers endpoint
 offers = Namespace('Offers', description='Job offers related operations')
+users = Namespace('Users', description='Users related operations')
 
 # Init serializers
+user_schema = UserSchema()
 offer_schema = OfferSchema()
 offers_schema = OfferSchema(many=True)
 
@@ -109,3 +111,45 @@ class OfferItem(Resource):
 
         else:
             return {"message": "offer not found {}".format(id)}, 404
+
+
+@users.route("/register")
+class UserRegister(Resource):
+
+    def post(self):
+        json_data = request.get_json()
+
+        if not json_data:
+            return {'message': 'No input data provided'}, 400
+
+        try:
+            result = user_schema.load(json_data)
+            password = result.pop("password", None)
+            user = User(**result)
+            user.create(password)
+
+        except ValidationError as err:
+            return err.messages, 400
+
+        return {"username": user.username, "id": user.id}, 201
+
+
+@users.route("/login")
+class UserLogin(Resource):
+
+    def post(self):
+        json_data = request.get_json()
+
+        if not json_data:
+            return {'message': 'No username/password provided'}, 400
+
+        try:
+            result = user_schema.load(json_data)
+            user = User.query.filter_by(username=result["username"]).first()
+            if user and user.check_password(result["password"]):
+                return {"id": user.id, "token": user.generate_token()}, 200
+
+        except ValidationError as err:
+            return err.messages, 400
+        
+        return {'message': 'Invalid username/password'}, 400
