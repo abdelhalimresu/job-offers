@@ -7,7 +7,7 @@ from flask_restplus import Api
 
 # Project imports
 from api.db import db
-from api.resources import offers
+from api.resources import offers, users
 
 
 api = Api(version='1.0', title='Job offers',
@@ -15,6 +15,7 @@ api = Api(version='1.0', title='Job offers',
 )
 
 api.add_namespace(offers, path='/api/v1/users/<int:user_id>/offers')
+api.add_namespace(users, path='/api/v1/users')
 
 
 def create_app(config):

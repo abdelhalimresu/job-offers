@@ -1,4 +1,8 @@
+# Built-in
 import unittest
+import hashlib
+
+# Project imports
 from app import create_app
 from app import db
 from api.models import User, Offer
@@ -25,8 +29,8 @@ class JobOfferTest(BaseTestCase):
     def setUp(self):
         super(JobOfferTest, self).setUp()
         # Create a user before every test
-        self.user = User(username="username", password="password")
-        self.user.create()
+        self.user = User(username="username")
+        self.user.create(password="password")
 
     def test_get_offer(self):
         # Create an offer in the database to retreive
@@ -179,6 +183,55 @@ class JobOfferTest(BaseTestCase):
         # Test delete again
         response = self.client.delete("/api/v1/users/{}/offers/{}".format(self.user.id, offer.id))
         self.assertEqual(response.status_code, 404)
+
+
+class UserTest(BaseTestCase):
+
+    def test_register(self):
+        user_data = {
+            'username': 'abdelhalim',
+            'password': 'pass'
+        }
+        response = self.client.post(
+            "/api/v1/users/register",
+            json=user_data
+        )
+        user = User.query.first()
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json, {"username": user.username, "id": user.id})
+        self.assertEqual(user.username, "abdelhalim")
+        self.assertEqual(user.hashed_password, hashlib.md5(bytes("pass", "utf-8")).hexdigest())
+
+    def test_user_login(self):
+        user = User(username="abdelhalim")
+        user.create(password="password")
+        user_id = user.id
+
+        response = self.client.post(
+            "/api/v1/users/login",
+            json={"username": "abdelhalim", "password": "password"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json["id"], user_id)
+        self.assertIsNotNone(response.json["token"])
+
+        # test with no data
+        response = self.client.post(
+            "/api/v1/users/login"
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json, {'message': 'No username/password provided'})
+
+        # test with with wrong credentials
+        response = self.client.post(
+            "/api/v1/users/login",
+            json={"username": "abdelhalim", "password": "wrong"}
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json,{'message': 'Invalid username/password'})
+
+
 
 if __name__ == '__main__':
     unittest.main()

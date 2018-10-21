@@ -1,5 +1,6 @@
 # Built-in
 from datetime import datetime
+import hashlib
 
 # Pip imports
 from sqlalchemy.orm import relationship, backref
@@ -13,25 +14,30 @@ class User(db.Model):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
-    username = Column(String(20))
-    password = Column(String(20))
+    username = Column(String(32), unique=True)
+    hashed_password = Column(String(32))
 
     def __repr__(self):
         return 'Id: {}, username: {}'.format(self.id, self.username)
+
+    def check_password(self, password):
+        return self.hashed_password == self._hash_password(password)
 
     def delete(self):
         db.session.delete(self)
         db.session.commit()
 
-    def update(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-        db.session.commit()
-
-    def create(self):
+    def create(self, password):
+        self.hashed_password = self._hash_password(password)
         db.session.add(self)
         db.session.commit()
+
+    def generate_token(self):
+        return "your token"
+
+    @staticmethod
+    def _hash_password(password):
+        return hashlib.md5(bytes(password, "utf-8")).hexdigest()
 
 
 class Offer(db.Model):
