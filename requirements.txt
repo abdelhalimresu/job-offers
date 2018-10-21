@@ -11,7 +11,7 @@ Werkzeug==0.14.1
 aniso8601==3.0.2
 flask-restplus==0.12.1
 jsonschema==2.6.0
-marshmallow==2.16.0
+marshmallow==3.0.0b18
 psycopg2-binary==2.7.5
 pylint==1.9.3
 python-dotenv==0.9.1
