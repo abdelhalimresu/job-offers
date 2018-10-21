@@ -44,7 +44,7 @@ staging:
     - install_dependencies
     - ensure_namespace
     - create_secret
-    - deploy || echo failed
+    - deploy
 
   environment:
     name: staging
@@ -127,20 +127,10 @@ staging:
   }
 
   function deploy() {
-    export TILLER_NAMESPACE=$KUBE_NAMESPACE
     export PERSISTENT_VOLUME_SIZE=5
     export API_REPLICAS=1
 
-    sleep 900
-
-    echo "Checking Tiller..."
-    helm init --upgrade
-    kubectl rollout status -n "$TILLER_NAMESPACE" -w "deployment/tiller-deploy"
-    if ! helm version --debug; then
-      echo "Failed to init Tiller."
-      return 1
-    fi
-    echo ""
+    helm init --service-account tiller
 
     helm upgrade --install \
       --wait \
