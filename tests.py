@@ -111,8 +111,8 @@ class JobOfferTest(BaseTestCase):
             "/api/v1/users/100/offers/",
             json=offer_data, headers=self.header
         )
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json, {'message': 'Invalid user id'})
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json, {'message': 'Unauthorized'})
 
         # Test with missing fields
         offer_data.pop("title", None)
@@ -162,16 +162,6 @@ class JobOfferTest(BaseTestCase):
         )
         self.assertEqual(response.status_code, 404)
 
-        # Test with non-existent user id
-        response = self.client.put(
-            "/api/v1/users/12/offers/{}".format(offer.id),
-            json={
-                "description": "Build a RESTful API with flask"
-            },
-            headers=self.header
-        )
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.json, {'message': 'Invalid user id'})
 
     def test_delete_offer(self):
         # Create an offer in the database to delete
@@ -187,13 +177,6 @@ class JobOfferTest(BaseTestCase):
             headers=self.header
         )
         self.assertEqual(response.status_code, 200)
-
-        # Test with wrong user
-        response = self.client.delete(
-            "/api/v1/users/12/offers/{}".format(offer.id),
-            headers=self.header
-        )
-        self.assertEqual(response.status_code, 404)
 
         # Test delete again
         response = self.client.delete(
@@ -308,6 +291,75 @@ class AuthTest(BaseTestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.json, {"message": "Invalid Token"})
 
+
+class PermissionTest(BaseTestCase):
+
+    def setUp(self):
+        super(PermissionTest, self).setUp()
+        # Create a user1 and user2 before every test
+        self.user1 = User(username="user1")
+        self.user1.create(password="pass1")
+        self.token1 = {
+            "Authorization" : "JWT {}".format(self.user1.generate_token())
+        }
+        self.user2 = User(username="user2")
+        self.user2.create(password="pass2")
+        self.token2 = {
+            "Authorization" : "JWT {}".format(self.user2.generate_token())
+        }
+        # Create offer by user1
+        self.offer = Offer(
+            title="Backend Engineer",
+            description="Build a RESTful API",
+            skills_list=["python", "flask", "DevOps"],
+            user_id=self.user1.id
+        )
+        self.offer.create()
+
+    def test_user2_get_permissions(self):
+        # User2 can read user1 offers
+        response = self.client.get("/api/v1/users/{}/offers/{}".format(
+            self.user1.id,
+            self.offer.id
+        ), headers=self.token2)
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get("/api/v1/users/{}/offers/".format(
+            self.user1.id
+        ), headers=self.token2)
+        self.assertEqual(response.status_code, 200)
+
+    def test_user2_create_permissions(self):
+        # User2 cannot create offers in user1 endpoint
+        offer_data = {
+            'title': 'Frontend Engineer',
+            'skills_list': ['vue', 'react', 'html'],
+            'description': 'Build a Frontends'
+        }
+        response = self.client.post(
+            "/api/v1/users/{}/offers/".format(self.user1.id),
+            json=offer_data, headers=self.token2
+        )
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json, {'message': 'Unauthorized'})
+
+    def test_user2_edit_permissions(self):
+        # User2 cannot edit offers in user1 endpoint
+        response = self.client.put(
+            "/api/v1/users/{}/offers/{}".format(self.user1.id, self.offer.id),
+            json={
+                "description": "Build a RESTful API with flask"
+            },
+            headers=self.token2
+        )
+        self.assertEqual(response.status_code, 401)
+
+    def test_user2_delete_permissions(self):
+        # User2 cannot delete offers in user1 endpoint
+        response = self.client.delete(
+            "/api/v1/users/{}/offers/{}".format(self.user1.id, self.offer.id),
+            headers=self.token2
+        )
+        self.assertEqual(response.status_code, 401)
 
 if __name__ == '__main__':
     unittest.main()
