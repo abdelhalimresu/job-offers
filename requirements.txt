@@ -18,3 +18,4 @@ python-dotenv==0.9.1
 pytz==2018.5
 six==1.11.0
 uWSGI==2.0.17.1
+PyJWT==1.6.4
