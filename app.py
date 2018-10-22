@@ -8,10 +8,11 @@ from flask_restplus import Api
 # Project imports
 from api.db import db
 from api.resources import offers, users
+from api.auth import auth
 
 
 api = Api(version='1.0', title='Job offers',
-    description='A Simple API for job offers'
+    description='A Simple API for job offers', authorizations=auth
 )
 
 api.add_namespace(offers, path='/api/v1/users/<int:user_id>/offers')
