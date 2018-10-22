@@ -175,6 +175,9 @@ class UserRegister(Resource):
         except ValidationError as err:
             return err.messages, 400
 
+        except IntegrityError:
+            return {"message": "Usename already taken"}, 400
+
         return {"username": user.username, "id": user.id}, 201
 
 
