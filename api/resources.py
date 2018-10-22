@@ -64,6 +64,10 @@ class OfferList(Resource):
         if not json_data:
             return {'message': 'No input data provided'}, 400
 
+        # Only owner can create offers
+        if request.current_user.id != user_id:
+            return {'message': 'Unauthorized'}, 401
+
         try:
             result = offer_schema.load(json_data)
             offer = Offer(**result, user_id=user_id)
@@ -103,6 +107,10 @@ class OfferItem(Resource):
         if not json_data:
             return {'message': 'No input data provided'}, 400
 
+        # Only owner can edit offers
+        if request.current_user.id != user_id:
+            return {'message': 'Unauthorized'}, 401
+
         else:
             offer = Offer.query.filter_by(id=id, user_id=user_id).first()
 
@@ -123,6 +131,10 @@ class OfferItem(Resource):
     @offers.doc(security='JWT Token')
     def delete(self, user_id, id):
         offer = Offer.query.filter_by(id=id, user_id=user_id).first()
+
+        # Only owner can delete offers
+        if request.current_user.id != user_id:
+            return {'message': 'Unauthorized'}, 401
 
         if offer:
             offer.delete()
