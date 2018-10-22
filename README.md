@@ -6,8 +6,8 @@ A Simple API for job offers built with Flask restplus Framework and Postgres dat
 
 ### Prerequisites
 
-In order to run the project in a local environment all you need is Docker and docker-compose tool installed.
-You may also want to have pipenv tool installed to run the project in a virtual environment
+In order to run the project in a local environment, all you need is Docker and docker-compose tool installed.
+You may also want to have `pipenv` tool installed to run the project in a virtual environment
 
 ### Building the project
 
@@ -165,7 +165,7 @@ curl -X GET "http://localhost:5000/api/v1/users/1/offers/" -H "accept: applicati
   "count": 1
 }
 ```
-- Edit offer
+- Edit a job offer
 ```bash
 curl -X PUT "http://localhost:5000/api/v1/users/1/offers/1" -H "accept: application/json" -H "Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJ1c2VyIiwiZXhwaXJlc19hdCI6IjIwMTgtMTAtMjMgMjE6NTM6NDMuODA0MjEyIn0.DIMHTfqqU-SDVW_kLXukh0pc9MOtO7uyvw4oIbXxtL4" -H "Content-Type: application/json" -d "{ \"title\": \"DevOps Engineer\"}"
 # Response
@@ -220,8 +220,8 @@ All API endpoints can be requested from the swagger UI
 
 Gitlab CI/CD pipeline is responsible for running jobs after each code push, it includes the following stages:
 
-- Build: Builds the application Docker image.
-- Test: Run integration tests agianst the built image to check the code is validity.
+- Build: Build the application docker image.
+- Test: Run integration tests agianst the built image to check the code validity.
 - Staging: Deploy the application to staging environment for further testing.
 - Production: Deploy the application to production environment
 
@@ -229,7 +229,7 @@ Gitlab CI/CD pipeline is responsible for running jobs after each code push, it i
 
 The deployment is done automatically to staging environment after pushing the code, you can check the deploy stage in `.gitlab-ci.yml` to see how the deployment is performed.
 
-The `helm` was used to deploy to kubernetes, Helm support many features such as rolling upgrades and rollbacks with all the changes being version controlled.
+The `helm` tool was used to deploy to kubernetes, Helm supports many features such as rolling upgrades and rollbacks with all the changes being version controlled.
 
 The deployments environments for the pipeline are:
 - staging: https://job-offers-api-staging.apps.abdelhalimresu.com/
