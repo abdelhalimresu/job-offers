@@ -13,22 +13,23 @@ from api.auth import require_auth
 from marshmallow import ValidationError
 from sqlalchemy.exc import IntegrityError
 
+
 # Create API Namespace for Offers endpoint
 offers = Namespace('Offers', description='Job offers related operations')
 users = Namespace('Users', description='Users related operations')
+
 
 # Init serializers
 user_schema = UserSchema()
 offer_schema = OfferSchema()
 offers_schema = OfferSchema(many=True)
 
+
 # Models for Swagger documentation
 offer_model = offers.model('OfferModel', {
     'title': fields.String,
     'description': fields.String,
-    'skills_list': fields.List(fields.String),
-    'creation_date': fields.DateTime,
-    'modification_date': fields.DateTime
+    'skills_list': fields.List(fields.String)
 })
 
 user_model = users.model('UserModel', {
@@ -45,6 +46,7 @@ class OfferList(Resource):
     @require_auth
     @offers.doc(security='JWT Token')
     def get(self, user_id):
+        """Get job offers for a specific user"""
 
         offers = Offer.query.filter_by(user_id=user_id).all()
 
@@ -59,6 +61,8 @@ class OfferList(Resource):
     @offers.doc(security='JWT Token')
     @offers.expect(offer_model)
     def post(self, user_id):
+        """Create a job offer"""
+
         json_data = request.get_json()
 
         if not json_data:
@@ -89,6 +93,8 @@ class OfferItem(Resource):
     @require_auth
     @offers.doc(security='JWT Token')
     def get(self, user_id, id):
+        """Get a job offer by id"""
+
         offer = Offer.query.filter_by(id=id, user_id=user_id).first()
 
         if offer:
@@ -102,6 +108,8 @@ class OfferItem(Resource):
     @offers.doc(security='JWT Token')
     @offers.expect(offer_model)
     def put(self, user_id, id):
+        """Edit a job offer"""
+
         json_data = request.get_json()
 
         if not json_data:
@@ -130,6 +138,8 @@ class OfferItem(Resource):
     @require_auth
     @offers.doc(security='JWT Token')
     def delete(self, user_id, id):
+        """Delete a job offer"""
+
         offer = Offer.query.filter_by(id=id, user_id=user_id).first()
 
         # Only owner can delete offers
@@ -149,6 +159,8 @@ class UserRegister(Resource):
 
     @offers.expect(user_model)
     def post(self):
+        """Register a new user"""
+
         json_data = request.get_json()
 
         if not json_data:
@@ -171,6 +183,8 @@ class UserLogin(Resource):
 
     @offers.expect(user_model)
     def post(self):
+        """Authenticate and retrieve an api token"""
+
         json_data = request.get_json()
 
         if not json_data:
