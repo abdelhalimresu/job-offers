@@ -32,6 +32,7 @@ test:
     POSTGRES_USER: user
     POSTGRES_PASSWORD: password
     POSTGRES_DB: test_db
+    FLASK_SECRET_KEY: secret
   stage: test
   image: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
   script:
