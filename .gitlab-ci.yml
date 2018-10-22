@@ -12,6 +12,7 @@ stages:
   - build
   - test
   - staging
+  - production
 
 build:
   stage: build
@@ -32,6 +33,7 @@ test:
     POSTGRES_USER: user
     POSTGRES_PASSWORD: password
     POSTGRES_DB: test_db
+    FLASK_SECRET_KEY: secret
   stage: test
   image: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
   script:
@@ -53,6 +55,23 @@ staging:
     refs:
       - branches
     kubernetes: active
+
+production:
+  stage: production
+  script:
+    - env
+    - install_dependencies
+    - ensure_namespace
+    - create_secret
+    - deploy
+  environment:
+    name: production
+    url: https://$PRODUCTION_SUBDOMAIN.$AUTO_DEVOPS_DOMAIN/
+  only:
+    refs:
+      - master
+    kubernetes: active
+  when: manual
 
 
 # ---------------------------------------------------------------------------
@@ -110,8 +129,10 @@ staging:
   function ensure_namespace() {
     if [[ "$CI_JOB_NAME" == "staging" ]]; then
       export KUBE_NAMESPACE=$STAGING_SUBDOMAIN
+      export RELEASE_NAME=joboffers
     elif [[ "$CI_JOB_NAME" == "production" ]]; then
       export KUBE_NAMESPACE=$PRODUCTION_SUBDOMAIN
+      export RELEASE_NAME=joboffers-prod
     fi
     kubectl describe namespace "$KUBE_NAMESPACE" || kubectl create namespace "$KUBE_NAMESPACE"
   }
@@ -139,9 +160,9 @@ staging:
       --set image.repository="$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG" \
       --set image.tag="$CI_COMMIT_SHA" \
       --set replicaCount.api=$API_REPLICAS \
-      --set ingress.hosts[0]="$STAGING_SUBDOMAIN.$AUTO_DEVOPS_DOMAIN" \
+      --set ingress.hosts[0]="$KUBE_NAMESPACE.$AUTO_DEVOPS_DOMAIN" \
       --namespace=$KUBE_NAMESPACE \
-      joboffers \
+      $RELEASE_NAME \
       chart/
   }
 

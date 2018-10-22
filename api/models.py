@@ -1,10 +1,12 @@
 # Built-in
-from datetime import datetime
+from datetime import datetime, timedelta
 import hashlib
 
 # Pip imports
+from flask import current_app
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, ARRAY
+import jwt
 
 # Project imports
 from api.db import db
@@ -33,7 +35,12 @@ class User(db.Model):
         db.session.commit()
 
     def generate_token(self):
-        return "your token"
+        payload = {
+            'id': self.id,
+            'username': self.username,
+            'expires_at': str(datetime.utcnow() + timedelta(hours=current_app.config["JWT_TOKEN_VALIDITY"]))
+        }
+        return jwt.encode(payload, current_app.config["SECRET_KEY"], algorithm='HS256').decode()
 
     @staticmethod
     def _hash_password(password):

@@ -1,5 +1,5 @@
 # Pip imports
-from flask import request, jsonify
+from flask import request
 from flask_restplus import Resource, Namespace
 from flask_restplus import marshal, fields, marshal_with, reqparse
 
@@ -7,6 +7,7 @@ from flask_restplus import marshal, fields, marshal_with, reqparse
 from api.db import db
 from api.models import Offer, User
 from api.schemas import OfferSchema, UserSchema
+from api.auth import require_auth
 
 # Exceptions
 from marshmallow import ValidationError
@@ -41,6 +42,8 @@ user_model = users.model('UserModel', {
 @offers.route("/")
 class OfferList(Resource):
 
+    @require_auth
+    @offers.doc(security='JWT Token')
     def get(self, user_id):
 
         offers = Offer.query.filter_by(user_id=user_id).all()
@@ -52,12 +55,18 @@ class OfferList(Resource):
         else:
             return {"message": "No offers to show"}, 404
 
+    @require_auth
+    @offers.doc(security='JWT Token')
     @offers.expect(offer_model)
     def post(self, user_id):
         json_data = request.get_json()
 
         if not json_data:
             return {'message': 'No input data provided'}, 400
+
+        # Only owner can create offers
+        if request.current_user.id != user_id:
+            return {'message': 'Unauthorized'}, 401
 
         try:
             result = offer_schema.load(json_data)
@@ -77,6 +86,8 @@ class OfferList(Resource):
 @offers.route("/<int:id>")
 class OfferItem(Resource):
 
+    @require_auth
+    @offers.doc(security='JWT Token')
     def get(self, user_id, id):
         offer = Offer.query.filter_by(id=id, user_id=user_id).first()
 
@@ -87,12 +98,18 @@ class OfferItem(Resource):
         else:
             return {"message": "offer not found {}".format(id)}, 404
 
+    @require_auth
+    @offers.doc(security='JWT Token')
     @offers.expect(offer_model)
     def put(self, user_id, id):
         json_data = request.get_json()
 
         if not json_data:
             return {'message': 'No input data provided'}, 400
+
+        # Only owner can edit offers
+        if request.current_user.id != user_id:
+            return {'message': 'Unauthorized'}, 401
 
         else:
             offer = Offer.query.filter_by(id=id, user_id=user_id).first()
@@ -110,8 +127,14 @@ class OfferItem(Resource):
             else:
                 return {"message": "Invalid user id"}, 404
 
+    @require_auth
+    @offers.doc(security='JWT Token')
     def delete(self, user_id, id):
         offer = Offer.query.filter_by(id=id, user_id=user_id).first()
+
+        # Only owner can delete offers
+        if request.current_user.id != user_id:
+            return {'message': 'Unauthorized'}, 401
 
         if offer:
             offer.delete()
@@ -155,7 +178,6 @@ class UserLogin(Resource):
 
         try:
             result = user_schema.load(json_data)
-            print(result)
             user = User.query.filter_by(username=result["username"]).first()
             if user and user.check_password(result["password"]):
                 return {"id": user.id, "token": user.generate_token()}, 200
