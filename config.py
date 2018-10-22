@@ -10,6 +10,7 @@ class Config(object):
         os.environ.get("POSTGRES_DB")
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    JWT_TOKEN_VALIDITY = 24 # one day
 
 
 class ProductionConfig(Config):
