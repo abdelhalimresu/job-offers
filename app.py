@@ -4,6 +4,7 @@ import os
 # Pip imports
 from flask import Flask
 from flask_restplus import Api
+from raven.contrib.flask import Sentry
 
 # Project imports
 from api.db import db
@@ -24,6 +25,10 @@ def create_app(config):
     app.config.from_object(config)
     db.init_app(app)
     api.init_app(app)
+    if config == "config.ProductionConfig":
+        sentry = Sentry(app, logging=True)
+        sentry.init_app(app)
+        return app
     return app
 
 if __name__ == '__main__':

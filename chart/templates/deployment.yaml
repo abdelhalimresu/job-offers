@@ -26,6 +26,8 @@ spec:
           command: ["/bin/bash", "-c"]
           args: ["python manage.py db upgrade && uwsgi --socket 0.0.0.0:5000 --protocol=http -w wsgi"]
           env:
+            - name: SENTRY_DSN
+              value: {{ .Values.sentryDsn }}
             - name: FLASK_SECRET_KEY
               valueFrom:
                 configMapKeyRef:
