@@ -17,6 +17,6 @@ psycopg2-binary==2.7.5
 pylint==1.9.3
 python-dotenv==0.9.1
 pytz==2018.5
-raven==6.9.0
+raven[flask]
 six==1.11.0
 uWSGI==2.0.17.1
