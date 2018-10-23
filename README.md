@@ -238,3 +238,25 @@ The deployments environments for the pipeline are:
 Traefik was used as ingress class for kubernetes to allow access to application within the cluster.
 
 - Traefik dashboard url: https://apps.abdelhalimresu.com/dashboard/
+
+## Monitoring
+
+### System resources usage monitoring
+
+To monitor the resources usage within the cluser, Prometheus and Grafana were used.
+
+- Link: https://grafana.apps.abdelhalimresu.com/
+- Credentials: admin:abdelhalim 
+
+Monitoring is done on many levels:
+
+- Node level
+- Deployment level
+- Pod level
+
+### Error tracking
+
+Sentry was used for errors reporting and tracking.
+
+- Link: https://sentry.apps.abdelhalimresu.com/sentry/job-offers-flask-api/
+- Credentials: abdelhalim.resu@gmail.com:abdelhalim 
