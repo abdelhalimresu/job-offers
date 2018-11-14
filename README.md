@@ -69,11 +69,11 @@ In this project, the task is to implement a simple API that stores the users’ 
 
 ### Main Endpoints
 
-- POST /users/<id>/offers : allow the user to create an offer
-- GET /users/<id>/offers : allow the user to list all offers of a specific user
-- GET /users/<id>/offers/<id> : allow the user to retrieve an offer
-- PUT /users/<id>/offers/<id> : allow the user to modify an existing offer
-- DELETE /users/<id>/offers/<id> : allow the user to delete an offer
+- POST `/users/<id>/offers` : allow the user to create an offer
+- GET `/users/<id>/offers` : allow the user to list all offers of a specific user
+- GET `/users/<id>/offers/<id>` : allow the user to retrieve an offer
+- PUT `/users/<id>/offers/<id>` : allow the user to modify an existing offer
+- DELETE `/users/<id>/offers/<id>` : allow the user to delete an offer
 
 ### Authentication
 
