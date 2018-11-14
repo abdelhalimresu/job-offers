@@ -56,7 +56,7 @@ The main objective of this mini-project is to walk through some important concep
 - Views : Process incoming requests and return responses
 - Models : contain the essential fields and behaviors of the data being stored.
 - Authentication & permissions classes: define and restrict access to the API resources.
-- Deployment using docker & Kubernets.
+- Deployment using docker & Kubernetes.
 
 ### Goal
 
@@ -81,7 +81,7 @@ Before a user can perform any action to the api, he/she must be authenticated,
 which means he already have an account and provided the necessary credentials to access
 the api.
 
-### Permission
+### Permissions
 
 - A user can create, view, update and delete his own offers.
 - A user can only view other offers.
