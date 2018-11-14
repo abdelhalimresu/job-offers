@@ -48,7 +48,45 @@ To run tests use the script:
 $ ./script/test.sh
 ```
 
-## Project structure
+## Project Details
+
+### Context
+
+The main objective of this mini-project is to walk through some important concepts of building REST APIs that are used in any framework (Flask, Symfony, .net core...) which are :
+- Views : Process incoming requests and return responses
+- Models : contain the essential fields and behaviors of the data being stored.
+- Authentication & permissions classes: define and restrict access to the API resources.
+- Deployment using docker & Kubernets.
+
+### Goal
+
+In this project, the task is to implement a simple API that stores the users’ job offers, so each can create/modify/delete their own offers and can view the others one. The project consist of a simple model that have the following fields :
+- title : the title of the job offer (cannot be null)
+- description : the description of the job offer
+- skills_list : a list of required skills
+- creation_date : datetime type
+- modification_date : datetime type (should be null if no modification was performed)
+
+### Main Endpoints
+
+- POST /users/<id>/offers : allow the user to create an offer
+- GET /users/<id>/offers : allow the user to list all offers of a specific user
+- GET /users/<id>/offers/<id> : allow the user to retrieve an offer
+- PUT /users/<id>/offers/<id> : allow the user to modify an existing offer
+- DELETE /users/<id>/offers/<id> : allow the user to delete an offer
+
+### Authentication
+
+Before a user can perform any action to the api, he/she must be authenticated,
+which means he already have an account and provided the necessary credentials to access
+the api.
+
+### Permission
+
+- A user can create, view, update and delete his own offers.
+- A user can only view other offers.
+
+### Project structure
 
 ```
 ├── api                             #   Api main directory
@@ -95,7 +133,7 @@ $ ./script/test.sh
  - Flask-Migrate - database migrations handeling.
  - Flask-Script - provides support for writing external scripts.
 
-### API endpoints
+### API endpoints testing with curl
 
 #### Users
 
